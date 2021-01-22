@@ -3,22 +3,48 @@ import 'firebase/firestore' ;            // Database
 import 'firebase/auth';                 // Authorization
 
 const config = {
-    apiKey: "AIzaSyApD0DTXG_q4_wUeEhYJAv9L-pNYQa3NxA",
-    authDomain: "crwn-clothing-60d6c.firebaseapp.com",
-    projectId: "crwn-clothing-60d6c",
-    storageBucket: "crwn-clothing-60d6c.appspot.com",
-    messagingSenderId: "691302600251",
-    appId: "1:691302600251:web:6b086af650de1e28f6d61e",
-    measurementId: "G-Z1PG60EYVS"
-  };
+  apiKey: "AIzaSyBZyQ_ON-7DzQZGu6wOgx-PGdGjF3Cx0rA",
+  authDomain: "crwn-clothing-16a29.firebaseapp.com",
+  projectId: "crwn-clothing-16a29",
+  storageBucket: "crwn-clothing-16a29.appspot.com",
+  messagingSenderId: "397521646883",
+  appId: "1:397521646883:web:001c95f541438a3fd10896",
+  measurementId: "G-GMQG6RDSQX"
+};
 
-  firebase.initializeApp(config);
+export const createUserProfileDocument = async (userAuth, additionalData) => {
+  if (!userAuth) return;
 
-  export const auth = firebase.auth();
-  export const firestore = firebase.firestore();
+  const userRef = firestore.doc(`users/${userAuth.uid}`);
 
-  const provider = new firebase.auth.GoogleAuthProvider();
-  provider.setCustomParameters({prompt: 'select_account'});
-  export const signInWithGoogle = () => auth.signInWithPopup(provider);
+  const snapShot = await userRef.get();
 
-  export default firebase;
+  if (!snapShot.exists) {
+    const { displayName, email } = userAuth;
+    const createdAt = new Date();
+
+    try {
+      await userRef.set({
+        displayName,
+        email,
+        createdAt,
+        ...additionalData
+      });
+    } catch (error) {
+      console.log('error creating user', error.message);
+    }
+  }
+
+  return userRef;
+};
+
+firebase.initializeApp(config);
+
+export const auth = firebase.auth();
+export const firestore = firebase.firestore();
+
+const provider = new firebase.auth.GoogleAuthProvider();
+provider.setCustomParameters({prompt: 'select_account'});
+export const signInWithGoogle = () => auth.signInWithPopup(provider);
+
+export default firebase;
